@@ -50,7 +50,7 @@ describe("CBC", () => {
     const encryptedBA = enc.ByteArray.fromb64(encryptedBase64);
 
     test("decryptAes128Cbc", () => {
-        expect(enc.btos(enc.fromb64(aes.decryptAes128Cbc(encryptedBase64, iv, key)))).toBe(plaintext);
+        expect(aes.decryptAes128Cbc(encryptedBA, ivBA, keyBA).toString()).toBe(plaintext);
     })
 
     test("encryptAes128Cbc", () => {

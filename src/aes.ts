@@ -3,7 +3,7 @@ import * as CryptoJS from "crypto-js";
 
 import * as lib from "./encoding";
 
-const decryptAes128Ebc = (cipher: string, key: string) => {
+const decryptAes128EcbStr = (cipher: string, key: string) => {
     const encKey =  CryptoJS.enc.Utf8.parse(key);
   
     // The challenge input includes newlines, but we want to ignore them.
@@ -13,11 +13,22 @@ const decryptAes128Ebc = (cipher: string, key: string) => {
     return CryptoJS.AES.decrypt(fixedCipher, encKey, {mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
 }
 
-const encryptAes128Ebc = (plaintext: string, key: string) => {
+const decryptAes128Ecb = (cipher: lib.ByteArray, key: lib.ByteArray): lib.ByteArray => {  
+    const words = CryptoJS.AES.decrypt(cipher.tob64(), key.toWordArray(), {mode: CryptoJS.mode.ECB });
+
+    return lib.ByteArray.fromWordArray(words);
+}
+
+const encryptAes128EcbStr = (plaintext: string, key: string) => {
     const encKey =  CryptoJS.enc.Utf8.parse(key);
   
     return CryptoJS.enc.Base64.stringify(CryptoJS.AES.encrypt(plaintext, encKey, {mode: CryptoJS.mode.ECB }).ciphertext)
 }
+
+const encryptAes128Ecb = (plaintext: lib.ByteArray, key: lib.ByteArray): lib.ByteArray => {  
+    return lib.ByteArray.fromWordArray(CryptoJS.AES.encrypt(plaintext.toString(), key.toWordArray(), {mode: CryptoJS.mode.ECB }).ciphertext)
+}
+
 
 
 const padBlock = (arr: any[], targetLen: number) => {
@@ -47,12 +58,11 @@ const dePad = (arr, size) => {
   }
 
 
-const encryptAes128Cbc = (plaintext, iv, key) => {
+const encryptAes128Cbc = (plaintext: lib.ByteArray, iv: lib.ByteArray, key: lib.ByteArray): lib.ByteArray => {
     const BLOCK_SIZE = 16;
     
     // first start with IV, XOR it with cipher text
-    const ptBytes = lib.stob(plaintext)
-    const encKey = CryptoJS.enc.Utf8.parse(key);
+    const ptBytes = plaintext.bytes;
   
     //return encKey;
   
@@ -66,7 +76,7 @@ const encryptAes128Cbc = (plaintext, iv, key) => {
       return a1.map((d, i) => d ^ a2[i]);
     };
   
-    let lastBlock = iv; // assume iv is arr
+    let lastBlock = iv.bytes; // assume iv is arr
     let results = [];
     for (let i = 0; i < blocks.length; i += 1) {
       let prepped = xorZip(blocks[i], lastBlock);
@@ -75,14 +85,14 @@ const encryptAes128Cbc = (plaintext, iv, key) => {
       //let prepped64 = lib.tob64(prepped);
   
       // I'm doing some real janky extra base64ing here
-      let cipher = CryptoJS.AES.encrypt(words, encKey, {
+      let cipher = CryptoJS.AES.encrypt(words, key.toWordArray(), {
         mode: CryptoJS.mode.ECB,
         padding: CryptoJS.pad.NoPadding,
-      });
+      }).ciphertext;
   
       //return cipher;
   
-      let cipherArr = lib.fromb64(CryptoJS.enc.Base64.stringify(cipher.ciphertext));
+      let cipherArr = lib.fromb64(CryptoJS.enc.Base64.stringify(cipher));
       results.push(cipherArr);
       lastBlock = cipherArr;
     }
@@ -92,7 +102,7 @@ const encryptAes128Cbc = (plaintext, iv, key) => {
     // concat the blocks together again
     // return base64 encoded
   
-    return lib.tob64(results.flat());
+    return new lib.ByteArray(results.flat());
   }
 
 const decryptAes128Cbc = (cipher, iv, key) => {
@@ -142,4 +152,4 @@ const decryptAes128Cbc = (cipher, iv, key) => {
     return lib.tob64(dePad(results.flat(), 16))
   }
 
-export {decryptAes128Ebc, encryptAes128Ebc, padBlock, encryptAes128Cbc, decryptAes128Cbc};
+export {decryptAes128Ecb, decryptAes128EcbStr, encryptAes128Ecb, encryptAes128EcbStr, padBlock, encryptAes128Cbc, decryptAes128Cbc};

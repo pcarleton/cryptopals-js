@@ -1,3 +1,7 @@
+
+import * as CryptoJS from "crypto-js";
+
+
 export function chunkArr(arr: number[], chunkSize: number): number[][] {
   let chunks : number[][] = [];
  
@@ -114,6 +118,14 @@ class ByteArray {
   }
   static fromHex(x: string) {
     return new ByteArray(fromHex(x));
+  }
+
+  static fromWordArray(x: CryptoJS.WordArray) {
+    return new ByteArray(fromHex(x.toString()));
+  }
+
+  toWordArray(): CryptoJS.WordArray {
+    return CryptoJS.enc.Hex.parse(this.toHex());
   }
 
   toString() {

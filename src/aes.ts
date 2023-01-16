@@ -70,31 +70,27 @@ const encryptAes128Cbc = (plaintext: lib.ByteArray, iv: lib.ByteArray, key: lib.
     const padded = padBlock(ptBytes, BLOCK_SIZE);
   
     // Split it into blocks
-    const blocks = lib.chunkArr(padded, BLOCK_SIZE);
+    const blocks = lib.chunkArr(padded, BLOCK_SIZE).map(lib.ByteArray.fromBytes);
   
-    const xorZip = (a1, a2) => {
-      return a1.map((d, i) => d ^ a2[i]);
+    const xorZip = (a1: lib.ByteArray, a2: lib.ByteArray): lib.ByteArray => {
+      return lib.ByteArray.fromBytes(a1.bytes.map((d: number, i: number) => d ^ a2.bytes[i]));
     };
   
-    let lastBlock = iv.bytes; // assume iv is arr
+    let lastBlock = iv;
     let results = [];
     for (let i = 0; i < blocks.length; i += 1) {
       let prepped = xorZip(blocks[i], lastBlock);
-      let words = CryptoJS.enc.Base64.parse(lib.tob64(prepped));
-      //return words;
-      //let prepped64 = lib.tob64(prepped);
-  
-      // I'm doing some real janky extra base64ing here
+      let words = prepped.toWordArray();
+
       let cipher = CryptoJS.AES.encrypt(words, key.toWordArray(), {
         mode: CryptoJS.mode.ECB,
         padding: CryptoJS.pad.NoPadding,
       }).ciphertext;
-  
-      //return cipher;
-  
-      let cipherArr = lib.fromb64(CryptoJS.enc.Base64.stringify(cipher));
-      results.push(cipherArr);
-      lastBlock = cipherArr;
+
+      let cipherBs = lib.ByteArray.fromWordArray(cipher);
+
+      results.push(cipherBs.bytes);
+      lastBlock = cipherBs;
     }
     
     // count IV as "block -1"

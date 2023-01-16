@@ -95,3 +95,38 @@ export {toBitArr, fromBitArr}
 const tob64 = (arr: number[]): string => btoa(toByteStr(arr));
 const fromb64 = (s: string): number[] => fromByteStr(atob(s));
 export {tob64, fromb64}
+
+
+class ByteArray {
+  bytes: number[];
+
+  constructor(bytes: number[]) {
+    this.bytes = bytes;
+  }
+  static fromb64(b64: string) {
+    return new ByteArray(fromb64(b64));
+  }
+  static fromBytes(x: number[]) {
+    return new ByteArray(x);
+  }
+  static fromString(x: string) {
+    return new ByteArray(stob(x));
+  }
+  static fromHex(x: string) {
+    return new ByteArray(fromHex(x));
+  }
+
+  toString() {
+    return btos(this.bytes);
+  }
+
+  tob64() {
+    return tob64(this.bytes);
+  }
+
+  toHex() {
+    return toHex(this.bytes);
+  }
+}
+
+export {ByteArray};

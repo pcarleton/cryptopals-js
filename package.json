@@ -1,6 +1,6 @@
 {
   "name": "cryptopals-pcarleton",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Helper libraries for the cryptopals challenges",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

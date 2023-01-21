@@ -64,13 +64,13 @@ const dePad = (arr, size) => {
 
 
   const xorZip = (a1: ByteArray, a2: ByteArray): ByteArray => {
-    return ByteArray.fromBytes(a1.bytes.map((d: number, i: number) => d ^ a2.bytes[i]));
+    return ByteArray.fromBytes(a1.map((d: number, i: number) => d ^ a2[i]));
   };
 
 const encryptAes128Cbc = (plaintext: ByteArray, iv: ByteArray, key: ByteArray): ByteArray => {    
     // first start with IV, XOR it with cipher text  
       // Pad it
-    const padded = padBlock(plaintext.bytes, BLOCK_SIZE);
+    const padded = padBlock(plaintext, BLOCK_SIZE);
   
     // Split it into blocks
     const blocks = lib.chunkArr(padded, BLOCK_SIZE).map(ByteArray.fromBytes);
@@ -78,7 +78,7 @@ const encryptAes128Cbc = (plaintext: ByteArray, iv: ByteArray, key: ByteArray): 
 
   
     let lastBlock = iv;
-    let results = [];
+    let results: number[][] = [];
     for (let i = 0; i < blocks.length; i += 1) {
       let prepped = xorZip(blocks[i], lastBlock);
       let words = prepped.toWordArray();
@@ -90,7 +90,7 @@ const encryptAes128Cbc = (plaintext: ByteArray, iv: ByteArray, key: ByteArray): 
 
       let cipherBs = ByteArray.fromWordArray(cipher);
 
-      results.push(cipherBs.bytes);
+      results.push(cipherBs);
       lastBlock = cipherBs;
     }
     
@@ -99,14 +99,16 @@ const encryptAes128Cbc = (plaintext: ByteArray, iv: ByteArray, key: ByteArray): 
     // concat the blocks together again
     // return byte array
   
-    return new ByteArray(results.flat());
+    return ByteArray.from(results.flat());
   }
 
 const decryptAes128Cbc = (cipher: ByteArray, iv: ByteArray, key: ByteArray) => {
     // first start with IV, XOR it with cipher text
     
     // Split it into blocks
-    const blocks = lib.chunkArr(cipher.bytes, BLOCK_SIZE).map(ByteArray.fromBytes);
+    const blocks = lib.chunkArr(cipher, BLOCK_SIZE).map(ByteArray.fromBytes);
+
+    //console.log(blocks);
 
     const keyWA = key.toWordArray();
   
@@ -131,7 +133,7 @@ const decryptAes128Cbc = (cipher: ByteArray, iv: ByteArray, key: ByteArray) => {
       let dexord = xorZip(ptArr, lastBlock);
   
       
-      results.push(dexord.bytes);
+      results.push(dexord);
       lastBlock = blocks[i];
     }
     
@@ -139,8 +141,8 @@ const decryptAes128Cbc = (cipher: ByteArray, iv: ByteArray, key: ByteArray) => {
     // XOR block against block -1, then encrypt it.
     // concat the blocks together again
     // return base64 encoded
-  
-    return new ByteArray(dePad(results.flat(), 16));
+
+    return ByteArray.from(dePad(results.flat(), 16));
   }
 
 export {decryptAes128Ecb, decryptAes128EcbStr, encryptAes128Ecb, encryptAes128EcbStr, padBlock, encryptAes128Cbc, decryptAes128Cbc};

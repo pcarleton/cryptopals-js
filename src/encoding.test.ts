@@ -52,3 +52,9 @@ describe("encoding functions", () => {
         expect(lib.fromb64("////")).toStrictEqual([255, 255, 255]);
     })
 })
+
+describe("parseGetParams", () => {
+    test("parseGetParams", () => {
+        expect(lib.parseGetParams("a=1&b=2")).toStrictEqual({a: "1", b: "2"});
+    });
+});

@@ -3,27 +3,34 @@ import * as CryptoJS from "crypto-js";
 import * as Plot from "@observablehq/plot";
 
 
-class ByteArray {
-    bytes: number[];
+class ByteArray extends Array {
+    //bytes: number[];
   
-    constructor(bytes: number[]) {
-      this.bytes = bytes;
+    constructor(...bytes: number[]) {
+      super(...bytes);
+      //this.bytes = bytes;
     }
-    static fromb64(b64: string) {
-      return new ByteArray(enc.fromb64(b64));
+    static fromb64(b64: string): ByteArray {
+      return ByteArray.from(enc.fromb64(b64));
     }
+    static from(x: number[]) {
+      return new ByteArray(...x);
+    }
+
     static fromBytes(x: number[]) {
-      return new ByteArray(x);
+      return new ByteArray(...x);
     }
+
+
     static fromString(x: string) {
-      return new ByteArray(enc.stob(x));
+      return ByteArray.from(enc.stob(x));
     }
     static fromHex(x: string) {
-      return new ByteArray(enc.fromHex(x));
+      return ByteArray.from(enc.fromHex(x));
     }
   
     static fromWordArray(x: CryptoJS.lib.WordArray) {
-      return new ByteArray(enc.fromHex(x.toString()));
+      return ByteArray.from(enc.fromHex(x.toString()));
     }
   
     toWordArray(): CryptoJS.lib.WordArray {
@@ -31,15 +38,15 @@ class ByteArray {
     }
   
     toString() {
-      return enc.btos(this.bytes);
+      return enc.btos(this);
     }
   
     tob64() {
-      return enc.tob64(this.bytes);
+      return enc.tob64(this);
     }
   
     toHex() {
-      return enc.toHex(this.bytes);
+      return enc.toHex(this);
     }
 
     plot(opts: {modes?: string[], limit?: number, blocksize?: number, highlightBlocks?: boolean}) {
@@ -47,6 +54,9 @@ class ByteArray {
     }
   }
 
-  const BA = (bytes) => ByteArray.fromBytes(bytes)
+
+
+
+  const BA = (bytes) => new ByteArray(...bytes);
   
   export {ByteArray, BA};

@@ -12,13 +12,13 @@ const gen16byteKey = (): ByteArray => {
 
 const addRandomPadding = (inb: ByteArray): ByteArray => {
     const pickNum5to10 = () => Math.floor(Math.random()*5) + 5;
-    const arrayForLen = (len: number) => new Array(len).fill(0);
+    const arrayForLen = (len: number): number[] => new Array(len).fill(0);
 
     const preBytes = arrayForLen(pickNum5to10());
     const postBytes = arrayForLen(pickNum5to10());
 
 
-    return new ByteArray(preBytes.concat(inb.bytes).concat(postBytes));
+    return ByteArray.from(preBytes.concat(inb).concat(postBytes));
 }
 
 const randomEncrypt = (plaintext: ByteArray) => {
@@ -44,10 +44,10 @@ const oracle = () => {
 
     const result = randomEncrypt(input);
 
-    const blocks = enc.chunkArr(result.encrypted.bytes, 16);
+    const blocks = enc.chunkArr(result.encrypted, 16);
     const isEcb = blocks[1].toString() ==  blocks[2].toString();
 
-    const modeGuess = (isEcb) ? "ecd" : "cbc";
+    const modeGuess = (isEcb) ? "ecb" : "cbc";
 
 
     // To detect if its ecb vs. cbc, check that... something about XOR?

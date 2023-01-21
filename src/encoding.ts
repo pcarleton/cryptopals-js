@@ -97,3 +97,14 @@ const tob64 = (arr: number[]): string => btoa(toByteStr(arr));
 const fromb64 = (s: string): number[] => fromByteStr(atob(s));
 export {tob64, fromb64}
 
+
+function parseGetParams(text) {
+  let params = new URLSearchParams(text);
+  let result = {};
+  for (let [key, value] of params) {
+    result[key] = value;
+  }
+  return result;
+}
+
+export {parseGetParams};

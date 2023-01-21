@@ -3,6 +3,8 @@ import * as CryptoJS from "crypto-js";
 
 import * as lib from "./encoding";
 
+import {ByteArray, BA} from "./bytearray";
+
 const BLOCK_SIZE = 16;
 
 
@@ -16,10 +18,10 @@ const decryptAes128EcbStr = (cipher: string, key: string) => {
     return CryptoJS.AES.decrypt(fixedCipher, encKey, {mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
 }
 
-const decryptAes128Ecb = (cipher: lib.ByteArray, key: lib.ByteArray): lib.ByteArray => {  
+const decryptAes128Ecb = (cipher: ByteArray, key: ByteArray): ByteArray => {  
     const words = CryptoJS.AES.decrypt(cipher.tob64(), key.toWordArray(), {mode: CryptoJS.mode.ECB });
 
-    return lib.ByteArray.fromWordArray(words);
+    return ByteArray.fromWordArray(words);
 }
 
 const encryptAes128EcbStr = (plaintext: string, key: string) => {
@@ -28,8 +30,8 @@ const encryptAes128EcbStr = (plaintext: string, key: string) => {
     return CryptoJS.enc.Base64.stringify(CryptoJS.AES.encrypt(plaintext, encKey, {mode: CryptoJS.mode.ECB }).ciphertext)
 }
 
-const encryptAes128Ecb = (plaintext: lib.ByteArray, key: lib.ByteArray): lib.ByteArray => {  
-    return lib.ByteArray.fromWordArray(CryptoJS.AES.encrypt(plaintext.toString(), key.toWordArray(), {mode: CryptoJS.mode.ECB }).ciphertext)
+const encryptAes128Ecb = (plaintext: ByteArray, key: ByteArray): ByteArray => {  
+    return ByteArray.fromWordArray(CryptoJS.AES.encrypt(plaintext.toString(), key.toWordArray(), {mode: CryptoJS.mode.ECB }).ciphertext)
 }
 
 
@@ -61,17 +63,17 @@ const dePad = (arr, size) => {
   }
 
 
-  const xorZip = (a1: lib.ByteArray, a2: lib.ByteArray): lib.ByteArray => {
-    return lib.ByteArray.fromBytes(a1.bytes.map((d: number, i: number) => d ^ a2.bytes[i]));
+  const xorZip = (a1: ByteArray, a2: ByteArray): ByteArray => {
+    return ByteArray.fromBytes(a1.bytes.map((d: number, i: number) => d ^ a2.bytes[i]));
   };
 
-const encryptAes128Cbc = (plaintext: lib.ByteArray, iv: lib.ByteArray, key: lib.ByteArray): lib.ByteArray => {    
+const encryptAes128Cbc = (plaintext: ByteArray, iv: ByteArray, key: ByteArray): ByteArray => {    
     // first start with IV, XOR it with cipher text  
       // Pad it
     const padded = padBlock(plaintext.bytes, BLOCK_SIZE);
   
     // Split it into blocks
-    const blocks = lib.chunkArr(padded, BLOCK_SIZE).map(lib.ByteArray.fromBytes);
+    const blocks = lib.chunkArr(padded, BLOCK_SIZE).map(ByteArray.fromBytes);
   
 
   
@@ -86,7 +88,7 @@ const encryptAes128Cbc = (plaintext: lib.ByteArray, iv: lib.ByteArray, key: lib.
         padding: CryptoJS.pad.NoPadding,
       }).ciphertext;
 
-      let cipherBs = lib.ByteArray.fromWordArray(cipher);
+      let cipherBs = ByteArray.fromWordArray(cipher);
 
       results.push(cipherBs.bytes);
       lastBlock = cipherBs;
@@ -97,14 +99,14 @@ const encryptAes128Cbc = (plaintext: lib.ByteArray, iv: lib.ByteArray, key: lib.
     // concat the blocks together again
     // return byte array
   
-    return new lib.ByteArray(results.flat());
+    return new ByteArray(results.flat());
   }
 
-const decryptAes128Cbc = (cipher: lib.ByteArray, iv: lib.ByteArray, key: lib.ByteArray) => {
+const decryptAes128Cbc = (cipher: ByteArray, iv: ByteArray, key: ByteArray) => {
     // first start with IV, XOR it with cipher text
     
     // Split it into blocks
-    const blocks = lib.chunkArr(cipher.bytes, BLOCK_SIZE).map(lib.ByteArray.fromBytes);
+    const blocks = lib.chunkArr(cipher.bytes, BLOCK_SIZE).map(ByteArray.fromBytes);
 
     const keyWA = key.toWordArray();
   
@@ -120,9 +122,9 @@ const decryptAes128Cbc = (cipher: lib.ByteArray, iv: lib.ByteArray, key: lib.Byt
       let plainText = CryptoJS.AES.decrypt(blocks[i].tob64(), keyWA, {mode: CryptoJS.mode.ECB,  padding: CryptoJS.pad.NoPadding });
   
       // this is weird, I don't know what's happening
-      plainText = new CryptoJS.lib.WordArray.init(plainText.words);
+      plainText = CryptoJS.lib.WordArray.create(plainText.words);
   
-      let ptArr = lib.ByteArray.fromWordArray(plainText);
+      let ptArr = ByteArray.fromWordArray(plainText);
   
       //return words;
     
@@ -138,7 +140,7 @@ const decryptAes128Cbc = (cipher: lib.ByteArray, iv: lib.ByteArray, key: lib.Byt
     // concat the blocks together again
     // return base64 encoded
   
-    return new lib.ByteArray(dePad(results.flat(), 16));
+    return new ByteArray(dePad(results.flat(), 16));
   }
 
 export {decryptAes128Ecb, decryptAes128EcbStr, encryptAes128Ecb, encryptAes128EcbStr, padBlock, encryptAes128Cbc, decryptAes128Cbc};

@@ -22,11 +22,11 @@ class ByteArray {
       return new ByteArray(enc.fromHex(x));
     }
   
-    static fromWordArray(x: CryptoJS.WordArray) {
+    static fromWordArray(x: CryptoJS.lib.WordArray) {
       return new ByteArray(enc.fromHex(x.toString()));
     }
   
-    toWordArray(): CryptoJS.WordArray {
+    toWordArray(): CryptoJS.lib.WordArray {
       return CryptoJS.enc.Hex.parse(this.toHex());
     }
   

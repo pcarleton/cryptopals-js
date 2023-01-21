@@ -1,6 +1,7 @@
 
 import * as aes from "./aes";
 import * as enc from "./encoding";
+import {ByteArray, BA} from "./bytearray";
 
 
 describe("ECB", () => {
@@ -8,9 +9,9 @@ describe("ECB", () => {
     const shortCipherBase64 = "CRIwqt4+szDbqkNY+I0qbDe3LQz0wiw0SuxBQtAM5TBoxgSOTPhGay0sJsfzQM3X";
     const key = "YELLOW SUBMARINE";
 
-    const ptBa = enc.ByteArray.fromString(plaintext);
-    const cipherBa = enc.ByteArray.fromb64(shortCipherBase64);
-    const keyBa = enc.ByteArray.fromString(key);
+    const ptBa = ByteArray.fromString(plaintext);
+    const cipherBa = ByteArray.fromb64(shortCipherBase64);
+    const keyBa = ByteArray.fromString(key);
     test("decryptAes128Ecb", () => {
         expect(aes.decryptAes128Ecb(cipherBa, keyBa)).toStrictEqual(ptBa);
     })
@@ -44,10 +45,10 @@ describe("CBC", () => {
     const encryptedBase64 = "/SoxOUu3YsSebpKAPAqdVugO4ldEPwJvc+jYcQld7DdXs+j80XEwWJKphfAnpkO3";
     const key = "yellow submarine";
 
-    const plaintextBA = enc.ByteArray.fromString(plaintext);
-    const ivBA = enc.ByteArray.fromBytes(iv);
-    const keyBA = enc.ByteArray.fromString(key);
-    const encryptedBA = enc.ByteArray.fromb64(encryptedBase64);
+    const plaintextBA = ByteArray.fromString(plaintext);
+    const ivBA = ByteArray.fromBytes(iv);
+    const keyBA = ByteArray.fromString(key);
+    const encryptedBA = ByteArray.fromb64(encryptedBase64);
 
     test("decryptAes128Cbc", () => {
         expect(aes.decryptAes128Cbc(encryptedBA, ivBA, keyBA).toString()).toBe(plaintext);

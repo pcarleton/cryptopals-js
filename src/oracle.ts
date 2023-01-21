@@ -3,14 +3,14 @@ import * as CryptoJS from "crypto-js";
 
 import * as enc from "./encoding";
 import * as aes from "./aes";
+import {ByteArray, BA} from "./bytearray";
 
 
-
-const gen16byteKey = (): enc.ByteArray => {
-    return enc.ByteArray.fromWordArray(CryptoJS.lib.WordArray.random(16));
+const gen16byteKey = (): ByteArray => {
+    return ByteArray.fromWordArray(CryptoJS.lib.WordArray.random(16));
 }
 
-const addRandomPadding = (inb: enc.ByteArray): enc.ByteArray => {
+const addRandomPadding = (inb: ByteArray): ByteArray => {
     const pickNum5to10 = () => Math.floor(Math.random()*5) + 5;
     const arrayForLen = (len: number) => new Array(len).fill(0);
 
@@ -18,10 +18,10 @@ const addRandomPadding = (inb: enc.ByteArray): enc.ByteArray => {
     const postBytes = arrayForLen(pickNum5to10());
 
 
-    return new enc.ByteArray(preBytes.concat(inb.bytes).concat(postBytes));
+    return new ByteArray(preBytes.concat(inb.bytes).concat(postBytes));
 }
 
-const randomEncrypt = (plaintext: enc.ByteArray) => {
+const randomEncrypt = (plaintext: ByteArray) => {
     const mode = (Math.random() > 0.5) ? "ecb" : "cbc";
   
     const padded = addRandomPadding(plaintext);
@@ -40,7 +40,7 @@ const randomEncrypt = (plaintext: enc.ByteArray) => {
 const oracle = () => {
 
     // A bunch of the same value, if we see subsequent matching blocks, we can tell its ECB.
-    const input = enc.ByteArray.fromBytes(Array(16*4).fill(13));
+    const input = ByteArray.fromBytes(Array(16*4).fill(13));
 
     const result = randomEncrypt(input);
 
